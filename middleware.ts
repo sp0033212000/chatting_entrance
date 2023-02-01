@@ -6,7 +6,6 @@ import { CHATTING_TOKEN_KEY, pathname } from "@/src/constant";
 
 const bypass = [
   pathname.auth,
-  pathname.startAuth,
   pathname.loading,
   "favicon/",
   "manifest/",

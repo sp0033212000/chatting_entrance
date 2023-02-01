@@ -79,21 +79,14 @@ const Modal: FC<Props> = ({
         onClick={onBackDrop}
         {...props}
       >
-        <div className={clsx("flex-1 bg-white z-[999]")} />
         <Flexbox
           align={"center"}
           justify={"center"}
           id={"modal"}
-          className={clsx(
-            className,
-            "relative",
-            "min-w-min-screen max-w-max-screen w-full",
-            "z-50"
-          )}
+          className={clsx(className, "relative", "w-full", "z-50")}
         >
           {children}
         </Flexbox>
-        <div className={clsx("flex-1 bg-white z-[999]")} />
       </Flexbox>
     </Portal>
   );

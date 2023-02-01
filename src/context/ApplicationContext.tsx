@@ -82,9 +82,7 @@ export const ApplicationContextProvider: FC = ({ children }) => {
           },
           onAuthFailure: (error) => {
             console.log(error);
-            if (
-              ![pathname.auth, pathname.authRedirect].includes(router.pathname)
-            )
+            if (![pathname.auth].includes(router.pathname))
               router.replace(pathname.auth);
           },
         },
@@ -97,12 +95,7 @@ export const ApplicationContextProvider: FC = ({ children }) => {
   );
 
   useEffect(() => {
-    if (
-      [pathname.auth, pathname.authRedirect, pathname.loading].includes(
-        router.pathname
-      )
-    )
-      return;
+    if ([pathname.auth, pathname.loading].includes(router.pathname)) return;
 
     loadUserProfile();
   }, []);
@@ -110,11 +103,7 @@ export const ApplicationContextProvider: FC = ({ children }) => {
   useEffect(() => {
     if (isNotSet(user) || !isSignedIn) return;
 
-    if (
-      [pathname.auth, pathname.authRedirect, pathname.loading].includes(
-        router.pathname
-      )
-    )
+    if ([pathname.auth, pathname.loading].includes(router.pathname))
       router.replace(pathname.landingPage);
   }, [isSignedIn, user]);
 
