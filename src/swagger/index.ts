@@ -84,7 +84,7 @@ export const responseErrorHandler = (error: AxiosError) => {
       }
     }
   }
-  if (Number(data?.code) === 401 && !config?.noRedirectAfterAuthFailure) {
+  if (Number(data?.statusCode) === 401 && !config?.noRedirectAfterAuthFailure) {
     if (isBrowser) {
       storage.remove(StorageProperties.ACCESS_TOKEN);
       window.location.replace(pathname.auth);

@@ -45,6 +45,9 @@ module.exports = {
       spacing: {
         stretch: "stretch",
       },
+      minHeight: {
+        stretch: "stretch",
+      },
       backgroundImage: {
         "pink-button": "linear-gradient(270deg, #FF91A3 0%, #FFB0B5 100%)",
       },

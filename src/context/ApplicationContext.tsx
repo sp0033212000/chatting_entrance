@@ -81,7 +81,6 @@ export const ApplicationContextProvider: FC = ({ children }) => {
             signIn(token, { skipReload: true });
           },
           onAuthFailure: (error) => {
-            console.log(error);
             if (![pathname.auth].includes(router.pathname))
               router.replace(pathname.auth);
           },

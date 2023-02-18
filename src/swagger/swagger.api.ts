@@ -16,6 +16,8 @@ export enum UserAuthIssuer {
 
 export interface UserProfileEntity {
   id: string;
+  twilioSid: string;
+  participantSid: string;
   name: string;
   email: string;
   pictureUrl?: string;
@@ -37,6 +39,56 @@ export interface ValidGoogleOAuthDto {
 
 export interface ValidGoogleOAuthEntity {
   accessToken: string;
+}
+
+export interface ConversationEntity {
+  id: string;
+  active: boolean;
+  participantIds: string[];
+  creatorId: string;
+  conversationSid: string;
+  chatServiceSid: string;
+  messagingServiceSid: string;
+  uniqueName: string;
+  roomName: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
+}
+
+export interface ConversationParticipant {
+  id: string;
+  name: string;
+  pictureUrl?: string;
+}
+
+export interface FindConversationEntity {
+  id: string;
+  active: boolean;
+  creatorId: string;
+  conversationSid: string;
+  chatServiceSid: string;
+  messagingServiceSid: string;
+  uniqueName: string;
+  roomName: string;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
+  participants: ConversationParticipant[];
+}
+
+export interface JoinConversationEntity {
+  id: string;
+  userId: string;
+  conversationId: string;
+  token: string;
+  active: boolean;
+}
+
+export interface JoinConversationDto {
+  conversationId: string;
 }
 
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, HeadersDefaults, ResponseType } from "axios";
@@ -198,12 +250,15 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      *
      * @tags AuthApi
      * @name GetUserProfile
+     * @summary getUserProfile 取得user profile
      * @request GET:/auth/me
+     * @secure
      */
     getUserProfile: (params: RequestParams = {}) =>
       this.request<UserProfileEntity, any>({
         path: `/auth/me`,
         method: "GET",
+        secure: true,
         format: "json",
         ...params,
       }),
@@ -213,6 +268,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      *
      * @tags AuthApi
      * @name IssueGoogleOAuth
+     * @summary issueGoogleOAuth 取得redirectUri
      * @request GET:/auth/google/issue
      */
     issueGoogleOAuth: (
@@ -234,6 +290,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      *
      * @tags AuthApi
      * @name ValidGoogleOAuth
+     * @summary validGoogleOAuth 驗證google oauth
      * @request POST:/auth/google/valid
      */
     validGoogleOAuth: (data: ValidGoogleOAuthDto, params: RequestParams = {}) =>
@@ -243,6 +300,117 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         body: data,
         type: ContentType.Json,
         format: "json",
+        ...params,
+      }),
+  };
+  conversationApi = {
+    /**
+     * No description
+     *
+     * @tags ConversationApi
+     * @name Create
+     * @summary create 建立conversation
+     * @request POST:/conversation
+     * @secure
+     */
+    create: (params: RequestParams = {}) =>
+      this.request<any, ConversationEntity>({
+        path: `/conversation`,
+        method: "POST",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags ConversationApi
+     * @name FindAll
+     * @summary findAll 取得所有conversation
+     * @request GET:/conversation
+     * @secure
+     */
+    findAll: (params: RequestParams = {}) =>
+      this.request<any, FindConversationEntity[]>({
+        path: `/conversation`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags ConversationApi
+     * @name ReJoin
+     * @summary reJoin 返回已加入conversation
+     * @request GET:/conversation/reJoin
+     * @secure
+     */
+    reJoin: (params: RequestParams = {}) =>
+      this.request<any, JoinConversationEntity[]>({
+        path: `/conversation/reJoin`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags ConversationApi
+     * @name FindOne
+     * @summary findOne 取得特定conversation
+     * @request GET:/conversation/{conversationId}
+     * @secure
+     */
+    findOne: (conversationId: string, params: RequestParams = {}) =>
+      this.request<any, FindConversationEntity[]>({
+        path: `/conversation/${conversationId}`,
+        method: "GET",
+        secure: true,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags ConversationApi
+     * @name JoinConversation
+     * @summary joinConversation 加入conversation
+     * @request POST:/conversation/join
+     * @secure
+     */
+    joinConversation: (data: JoinConversationDto, params: RequestParams = {}) =>
+      this.request<any, JoinConversationEntity>({
+        path: `/conversation/join`,
+        method: "POST",
+        body: data,
+        secure: true,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags ConversationApi
+     * @name CloseConversation
+     * @summary closeConversation 離開 conversation
+     * @request DELETE:/conversation/close
+     * @secure
+     */
+    closeConversation: (
+      query: {
+        conversationId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, any>({
+        path: `/conversation/close`,
+        method: "DELETE",
+        query: query,
+        secure: true,
         ...params,
       }),
   };

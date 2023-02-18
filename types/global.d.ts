@@ -6,8 +6,31 @@ import React, {
 
 import { GetServerSidePropsContext } from "next";
 
+import Video, {
+  LocalVideoTrack,
+  RemoteVideoTrack,
+  TwilioError,
+} from "twilio-video";
+
 export declare global {
-  interface Window {}
+  interface MediaDevices {
+    getDisplayMedia(constraints: MediaStreamConstraints): Promise<MediaStream>;
+  }
+
+  interface HTMLMediaElement {
+    setSinkId?(sinkId: string): Promise<undefined>;
+  }
+
+  // Helps create a union type with TwilioError
+  interface Error {
+    code: undefined;
+  }
+
+  interface Window {
+    TwilioVideo: Video;
+    twilioRoom: Video.Room;
+    webkitAudioContext: AudioContext;
+  }
 
   type ElementTagName = keyof JSX.IntrinsicElements;
 
@@ -59,6 +82,38 @@ export declare global {
     items: Item[];
     totalCount: number;
     totalPages: number;
+  }
+}
+
+export type Callback = (...args: any[]) => void;
+
+export type ErrorCallback = (error: TwilioError | Error) => void;
+
+export type IVideoTrack = LocalVideoTrack | RemoteVideoTrack;
+
+export type RoomType = "group" | "group-small" | "peer-to-peer" | "go";
+
+export type RecordingRule = {
+  type: "include" | "exclude";
+  all?: boolean;
+  kind?: "audio" | "video";
+  publisher?: string;
+};
+
+export type RecordingRules = RecordingRule[];
+
+export type Thumbnail = "none" | "blur" | "image";
+
+export interface BackgroundSettings {
+  type: Thumbnail;
+  index?: number;
+}
+
+declare module "twilio-video" {
+  // These help to create union types between Local and Remote VideoTracks
+  interface LocalVideoTrack {
+    isSwitchedOff: undefined;
+    setPriority: undefined;
   }
 }
 
