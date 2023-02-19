@@ -109,7 +109,7 @@ export function useAppStateContext() {
   const context = useContext(AppStateContext);
   if (!context) {
     throw new Error(
-      "useAppStateContext must be used within the AppStateProvider"
+      "useAppStateContext must be used within the AppStateContextProvider"
     );
   }
   return context;

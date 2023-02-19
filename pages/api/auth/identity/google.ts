@@ -21,16 +21,19 @@ export default async function (req: NextApiRequest, res: NextApiResponse) {
   };
 
   try {
-    const { data } = await SwaggerAPI.authApi.validGoogleOAuth({
-      code: code,
-      scope: scope,
-      authuser: authuser,
-      hd: hd,
-      prompt: prompt,
-      redirect_url: `${
-        process.env.ENTRANCE_WEB_DOMAIN || req.headers.host
-      }/api/auth/identity/google`,
-    });
+    const { data } = await SwaggerAPI.authApi.validGoogleOAuth(
+      {
+        code: code,
+        scope: scope,
+        authuser: authuser,
+        hd: hd,
+        prompt: prompt,
+        redirect_url: `${
+          process.env.ENTRANCE_WEB_DOMAIN || req.headers.host
+        }/api/auth/identity/google`,
+      },
+      { disableAuth: true }
+    );
 
     const domain = new URL(process.env.ENTRANCE_WEB_DOMAIN as string);
 

@@ -11,6 +11,7 @@ import { pathname } from "@/src/constant";
 import { SwaggerAPI } from "@/src/swagger";
 
 import { useAppStateContext } from "@/src/context/AppStateContext";
+import { useConversationWebsocketContext } from "@/src/context/ConversationWebsocketContext";
 import { useVideoContext } from "@/src/context/VideoContext";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -27,9 +28,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function EndCallButton(props: { className?: string }) {
   const classes = useStyles();
+  const router = useRouter();
   const { room } = useVideoContext();
   const { conversation } = useAppStateContext();
-  const router = useRouter();
+  const {} = useConversationWebsocketContext();
 
   const onDisconnect = useCallback(async () => {
     if (!room) return;

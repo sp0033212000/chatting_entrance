@@ -103,7 +103,7 @@ export default function Room() {
 
   return (
     <div
-      className={clsx(classes.container, "pb-[4.5rem] box-content", {
+      className={clsx(classes.container, "", {
         [classes.rightDrawerOpen]:
           isChatWindowOpen || isBackgroundSelectionOpen,
       })}

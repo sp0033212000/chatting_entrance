@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useUpdateEffect } from "react-use";
 
 import { GetServerSideProps } from "next";
 
@@ -17,6 +18,8 @@ import { SwaggerAPI } from "@/src/swagger";
 
 import { isEmptyArray } from "@/src/utils";
 
+import { useConversationWebsocketContext } from "@/src/context/ConversationWebsocketContext";
+
 import { FindConversationEntity } from "@/src/swagger/swagger.api";
 
 import ConditionalFragment from "@/src/components/common/ConditionalFragment";
@@ -31,7 +34,11 @@ interface Props {
 
 const Home: React.FC<Props> = ({ conversations }) => {
   const [isRouting, setIsRouting] = useState<boolean>(false);
+  const [data, setData] = useState(conversations);
+
   const router = useRouter();
+  const { onConversationCreated, onConversationUpdated, onConversationClosed } =
+    useConversationWebsocketContext();
 
   useEffect(() => {
     if (!isRouting) return;
@@ -40,6 +47,40 @@ const Home: React.FC<Props> = ({ conversations }) => {
       loadingEventEmitter.emit(false);
     };
   }, [isRouting]);
+
+  useUpdateEffect(() => {
+    setData(conversations);
+  }, [conversations]);
+
+  useEffect(() => {
+    const unsubscribe = onConversationCreated((data) => {
+      setData((prev) => prev.concat(data));
+    });
+
+    return () => unsubscribe();
+  }, [onConversationCreated]);
+
+  useEffect(() => {
+    const unsubscribe = onConversationUpdated((data) => {
+      setData((prev) =>
+        prev.map((conversation) =>
+          conversation.id === data.id ? data : conversation
+        )
+      );
+    });
+
+    return () => unsubscribe();
+  }, [onConversationUpdated]);
+
+  useEffect(() => {
+    const unsubscribe = onConversationClosed(({ conversationId }) => {
+      setData((prev) =>
+        prev.filter((conversation) => conversation.id !== conversationId)
+      );
+    });
+
+    return () => unsubscribe();
+  }, [onConversationClosed]);
 
   const onCreateClick = useCallback(async () => {
     const { data } = await SwaggerAPI.conversationApi.create();
@@ -60,7 +101,7 @@ const Home: React.FC<Props> = ({ conversations }) => {
           </p>
         </ConditionalFragment>
         <Flexbox className={"-mr-4 p-6 flex-wrap"}>
-          {conversations.map((conversation) => (
+          {data.map((conversation) => (
             <div
               key={conversation.id}
               className={clsx(

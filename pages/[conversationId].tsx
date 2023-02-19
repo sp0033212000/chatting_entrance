@@ -1,14 +1,19 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 
 import { GetServerSideProps } from "next";
 
 import dynamic from "next/dynamic";
+import { useRouter } from "next/router";
+import { isBrowser } from "react-use/lib/misc/util";
 
 import { pathname } from "@/src/constant";
+
+import { loadingEventEmitter } from "@/src/event";
 
 import { SwaggerAPI } from "@/src/swagger";
 
 import { AppStateContextProvider } from "@/src/context/AppStateContext";
+import { useConversationWebsocketContext } from "@/src/context/ConversationWebsocketContext";
 
 import {
   FindConversationEntity,
@@ -30,12 +35,47 @@ interface Props {
 }
 
 const Conversation: React.FC<Props> = ({ conversation, participate }) => {
+  const { onConversationJoin, onConversationLeave, onConversationClosed } =
+    useConversationWebsocketContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    onConversationJoin(conversation.id);
+
+    return () => {
+      onConversationLeave(conversation.id);
+    };
+  }, [onConversationJoin, onConversationLeave]);
+
+  useEffect(() => {
+    if (!isBrowser) return;
+    const listener = () => onConversationLeave(conversation.id);
+    window.addEventListener("beforeunload", listener);
+
+    return () => {
+      window.removeEventListener("beforeunload", listener);
+    };
+  }, [onConversationLeave]);
+
+  useEffect(() => {
+    const unsubscribe = onConversationClosed(async () => {
+      loadingEventEmitter.emit(true);
+      await router.replace(pathname.landingPage).finally(() => {
+        loadingEventEmitter.emit(false);
+      });
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [onConversationClosed]);
+
   return (
     <AppStateContextProvider
       token={participate.token}
       conversation={conversation}
     >
-      <div className={"w-screen min-h-screen bg-gray-700"}>
+      <div className={"w-screen bg-gray-700"}>
         <OpenGraph title={conversation.roomName} />
         <Suspense fallback={<InlineSpinner />}>
           <ConversationRoom />

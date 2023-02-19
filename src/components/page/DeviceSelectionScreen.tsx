@@ -12,8 +12,13 @@ import {
 } from "@material-ui/core";
 import Divider from "@material-ui/core/Divider";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { useRouter } from "next/router";
+
+import { pathname } from "@/src/constant";
 
 import { loadingEventEmitter } from "@/src/event";
+
+import { SwaggerAPI } from "@/src/swagger";
 
 import { useKrispToggle } from "@/src/hooks/useKrispToggle";
 
@@ -101,7 +106,9 @@ export default function DeviceSelectionScreen({
   setStep,
 }: DeviceSelectionScreenProps) {
   const classes = useStyles();
-  const { getToken, isKrispEnabled, isKrispInstalled } = useAppStateContext();
+  const router = useRouter();
+  const { getToken, isKrispEnabled, isKrispInstalled, conversation } =
+    useAppStateContext();
   const { connect: chatConnect } = useChatContext();
   const {
     connect: videoConnect,
@@ -115,6 +122,14 @@ export default function DeviceSelectionScreen({
     const token = getToken();
     videoConnect(token);
     chatConnect(token);
+  };
+
+  const handleCancel = async () => {
+    setStep(Steps.roomNameStep);
+    await SwaggerAPI.conversationApi.closeConversation({
+      conversationId: conversation.id,
+    });
+    await router.replace(pathname.landingPage);
   };
 
   useEffect(() => {
@@ -241,7 +256,7 @@ export default function DeviceSelectionScreen({
                     <Button
                       variant="outlined"
                       color="primary"
-                      onClick={() => setStep(Steps.roomNameStep)}
+                      onClick={handleCancel}
                       style={{ marginRight: "16px" }}
                     >
                       Cancel

@@ -94,8 +94,7 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({
   }, [isChatWindowOpen]);
 
   useEffect(() => {
-    if (room && chatClient) {
-      // console.log(room);
+    if (room && chatClient && conversationInfo) {
       chatClient
         .getConversationByUniqueName(conversationInfo!.uniqueName)
         .then((newConversation) => {
@@ -112,7 +111,7 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({
           );
         });
     }
-  }, [room, chatClient, onError]);
+  }, [room, chatClient, onError, conversationInfo]);
 
   return (
     <ChatContext.Provider
@@ -133,7 +132,9 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({
 export function useChatContext() {
   const context = useContext(ChatContext);
   if (!context) {
-    throw new Error("useChatContext must be used within the AppStateProvider");
+    throw new Error(
+      "useChatContext must be used within the ChatContextProvider"
+    );
   }
   return context;
 }

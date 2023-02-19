@@ -44,7 +44,7 @@ export function useParticipantContext() {
   const context = useContext(ParticipantContext);
   if (!context) {
     throw new Error(
-      "useParticipantContext must be used within the AppStateProvider"
+      "useParticipantContext must be used within the ParticipantContextProvider"
     );
   }
   return context;

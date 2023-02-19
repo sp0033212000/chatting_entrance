@@ -7,6 +7,7 @@ import axios, {
 } from "axios";
 import { parse } from "cookie";
 import jsCookie from "js-cookie";
+import jwtDecode from "jwt-decode";
 
 import { redirect } from "next/dist/server/api-utils";
 import { isBrowser } from "react-use/lib/misc/util";
@@ -35,16 +36,25 @@ export const requestHandler = (
   if (isBrowser) {
     if (!config.disableAuth) {
       const cookies = jsCookie.get();
+      const token = cookies[CHATTING_TOKEN_KEY];
+      if (token) {
+        const tokenInfo = jwtDecode<{ application: string }>(token);
 
-      config.headers![CHATTING_TOKEN_KEY] = cookies[CHATTING_TOKEN_KEY];
+        if (tokenInfo?.application === "chatting") {
+          config.headers![CHATTING_TOKEN_KEY] = token;
+        } else {
+          jsCookie.remove(CHATTING_TOKEN_KEY);
+        }
+      }
     }
   } else {
     if (!config.disableAuth) {
       const req = config.serverRequest;
       const cookie = req?.headers.cookie;
       const token = parse(cookie ?? "")?.[CHATTING_TOKEN_KEY];
+      const tokenInfo = jwtDecode<{ application: string }>(token);
 
-      if (cookie && token) {
+      if (cookie && token && tokenInfo?.application === "chatting") {
         config.headers.cookie = cookie;
         config.headers[CHATTING_TOKEN_KEY] = token;
       }
@@ -87,7 +97,7 @@ export const responseErrorHandler = (error: AxiosError) => {
   if (Number(data?.statusCode) === 401 && !config?.noRedirectAfterAuthFailure) {
     if (isBrowser) {
       storage.remove(StorageProperties.ACCESS_TOKEN);
-      window.location.replace(pathname.auth);
+      // window.location.replace(pathname.auth);
     } else {
       jsCookie.remove(CHATTING_TOKEN_KEY);
       if (config?.serverResponse) {

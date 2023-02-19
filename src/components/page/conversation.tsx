@@ -64,7 +64,7 @@ const ConversationApp = () => {
       {roomState === "disconnected" ? (
         <PreJoinScreens />
       ) : (
-        <Main className={"h-screen"}>
+        <Main className={"max-h-full h-full pb-[4.5rem] overflow-hidden"}>
           <ReconnectingNotification />
           <RecordingNotifications />
           <MobileTopMenuBar />

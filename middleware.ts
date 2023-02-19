@@ -22,6 +22,7 @@ export default async function middleware(req: NextRequest) {
     const userInfo = jwt_decode(
       req.cookies.get(CHATTING_TOKEN_KEY)?.value as string
     );
+
     if (userInfo) {
       NextResponse.redirect(new URL("/", req.url));
     } else {

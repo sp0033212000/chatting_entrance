@@ -20,6 +20,7 @@ const Auth = () => {
     });
     await router.replace(data.authURL);
   }, []);
+
   return (
     <Flexbox
       align={"center"}
