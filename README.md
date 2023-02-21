@@ -1,5 +1,8 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped
-with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Description
+
+This app is a chat app similar to the Google Meet.
+
+Additionally, it's built by NextJS and the Twilio conversation service, and handled authorization by google oauth.
 
 ## Before Start
 
